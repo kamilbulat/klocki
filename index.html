@@ -60,9 +60,9 @@
 
             document.getElementById("main").appendChild(renderer.domElement);
 
-            camera.position.x = 200;
+            camera.position.x = 142;
             camera.position.y = 80;
-            camera.position.z = 200;
+            camera.position.z = 142;
 
             camera.lookAt(mesh.position);
 
@@ -89,6 +89,10 @@
             document.addEventListener("keydown", onKeyDown, false); // naciśnięcie dowolnego klawisza
             //document.addEventListener("keyup", onKeyUp, false); //zwolnienie dowolnego klawisza
             var x;
+            var angle = 45;
+            Math.radians = function (degrees) {
+                return degrees * Math.PI / 180;
+            };
 
             document.addEventListener("mousedown", onMouseDown, false);
             var raycaster = new THREE.Raycaster(); // obiekt symulujący "rzucanie" promieni
@@ -141,22 +145,26 @@
                     switch (keyCode) {
                         case 65:
                             console.log("naciskasz A k");
+                            angle += 2;
+                            camera.position.x = 200 * Math.cos(Math.radians(angle));
+                            camera.position.z = 200 * Math.sin(Math.radians(angle));
                             camera.lookAt(mesh.position);
-
                             break;
                         case 68:
                             console.log("naciskasz D k");
-
+                            angle -= 2;
+                            camera.position.x = 200 * Math.cos(Math.radians(angle));
+                            camera.position.z = 200 * Math.sin(Math.radians(angle));
                             camera.lookAt(mesh.position);
                             break;
                         case 83:
                             console.log("naciskasz S k");
-                            camera.position.y -= 2;
+                            camera.position.y -= 4;
                             camera.lookAt(mesh.position);
                             break;
                         case 87:
                             console.log("naciskasz W k");
-                            camera.position.y += 2;
+                            camera.position.y += 4;
                             camera.lookAt(mesh.position);
                             break;
                     }
