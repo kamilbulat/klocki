@@ -1,0 +1,213 @@
+﻿<!DOCTYPE html>
+<html>
+<head>
+    <title>klocki</title>
+    <meta charset="utf-8" />
+    <script src="three.js"></script>
+    <script>
+        window.addEventListener("load", function () {
+            //alert("ok")
+            var scene = new THREE.Scene();
+            var camera = new THREE.PerspectiveCamera(
+                45, // kąt patrzenia kamery (FOV - field of view)
+                window.innerWidth / window.innerHeight, // proporcje widoku, powinny odpowiadać proporjom naszego ekranu przeglądarki
+                0.1, // minimalna renderowana odległość
+                10000 // maxymalna renderowana odległość
+            );
+
+            var renderer = new THREE.WebGLRenderer();
+            renderer.setClearColor(0x000000);
+            renderer.setSize(window.innerWidth, window.innerHeight);
+
+            var materials = [];
+            materials.push(new THREE.MeshBasicMaterial({ side: THREE.DoubleSide, map: THREE.ImageUtils.loadTexture('mats/C.jpg') }));
+            materials.push(new THREE.MeshBasicMaterial({ side: THREE.DoubleSide, map: THREE.ImageUtils.loadTexture('mats/C.jpg') }));
+            materials.push(new THREE.MeshBasicMaterial({ side: THREE.DoubleSide, map: THREE.ImageUtils.loadTexture('mats/A.jpg') }));
+            materials.push(new THREE.MeshBasicMaterial({ side: THREE.DoubleSide, map: THREE.ImageUtils.loadTexture('mats/A.jpg') }));
+            materials.push(new THREE.MeshBasicMaterial({ side: THREE.DoubleSide, map: THREE.ImageUtils.loadTexture('mats/B.jpg') }));
+            materials.push(new THREE.MeshBasicMaterial({ side: THREE.DoubleSide, map: THREE.ImageUtils.loadTexture('mats/B.jpg') }));
+
+
+            console.log(materials)
+            var faceMaterial = new THREE.MeshFaceMaterial(materials);
+
+
+            var klocki = [
+                          { x: 10, y: 10, z: 30 },
+                          { x: 10, y: 10, z: 50 },
+                          { x: 30, y: 10, z: 10 },
+                          { x: 50, y: 10, z: 10 },
+                          { x: 50, y: 10, z: 30 },
+                          { x: 50, y: 10, z: 50 },
+                          { x: 30, y: 10, z: 50 },
+                          { x: 10, y: 30, z: 10 },
+                          { x: 30, y: 30, z: 10 },
+                          { x: 10, y: 30, z: 30 },
+                          { x: 10, y: 50, z: 10 },
+                          { x: 10, y: 10, z: 10 }
+            ];
+
+            var material = new THREE.MeshBasicMaterial({
+                color: 0xff0000, side: THREE.DoubleSide, wireframe: true
+            });
+
+            for (var i = 0; i < klocki.length; i++) {
+                var geometry = new THREE.BoxGeometry(20, 20, 20);
+                var mesh = new THREE.Mesh(geometry, faceMaterial);
+                mesh.position.set(klocki[i].x, klocki[i].y, klocki[i].z);
+                scene.add(mesh);
+            }
+
+            document.getElementById("main").appendChild(renderer.domElement);
+
+            camera.position.x = 200;
+            camera.position.y = 80;
+            camera.position.z = 200;
+
+            camera.lookAt(mesh.position);
+
+            var axis = new THREE.AxisHelper(1000);
+            scene.add(axis);
+
+            var black = document.getElementById("black");
+            var white = document.getElementById("white");
+
+            black.onclick = function () {
+                renderer.setClearColor(0x000000);
+            }
+
+            white.onclick = function () {
+                renderer.setClearColor(0xffffff);
+            }
+
+            function animateScene() {
+                requestAnimationFrame(animateScene);
+                renderer.render(scene, camera);
+            }
+            animateScene();
+
+            document.addEventListener("keydown", onKeyDown, false); // naciśnięcie dowolnego klawisza
+            //document.addEventListener("keyup", onKeyUp, false); //zwolnienie dowolnego klawisza
+            var x;
+
+            document.addEventListener("mousedown", onMouseDown, false);
+            var raycaster = new THREE.Raycaster(); // obiekt symulujący "rzucanie" promieni
+            var mouseVector = new THREE.Vector2() // wektor (x,y) wykorzystany będzie do określenie pozycji myszy na ekranie
+            var isclick = false;
+            var klik;
+
+            function onMouseDown(event) {
+                mouseVector.x = (event.clientX / window.innerWidth) * 2 - 1;
+                mouseVector.y = -(event.clientY / window.innerHeight) * 2 + 1;
+                raycaster.setFromCamera(mouseVector, camera);
+                var intersects = raycaster.intersectObjects(scene.children);
+                isclick = false;
+
+                console.log(intersects.length)
+                if (intersects.length > 0) {
+                    isclick = !isclick;
+                    console.log(intersects[0].object);
+                    klik = intersects[0].object;
+                    console.log(klik);
+                }
+
+                console.log(isclick)
+            }
+            function onKeyDown(event) {
+                var keyCode = event.which;
+                console.log(keyCode); // wyloguj kod klawisza
+
+                if (isclick == true) {
+                    switch (keyCode) {
+                        case 65:
+                            console.log("naciskasz A p");
+                            klik.position.z += 20;
+                            break;
+                        case 68:
+                            console.log("naciskasz D p");
+                            klik.position.z -= 20;
+                            break;
+                        case 83:
+                            console.log("naciskasz S p");
+                            klik.position.x += 20;
+                            break;
+                        case 87:
+                            console.log("naciskasz W p");
+                            klik.position.x -= 20;
+                            break;
+                    }
+                } else {
+                    // w tym miejscu poruszam kamerą hajto
+                    switch (keyCode) {
+                        case 65:
+                            console.log("naciskasz A k");
+                            camera.lookAt(mesh.position);
+
+                            break;
+                        case 68:
+                            console.log("naciskasz D k");
+
+                            camera.lookAt(mesh.position);
+                            break;
+                        case 83:
+                            console.log("naciskasz S k");
+                            camera.position.y -= 2;
+                            camera.lookAt(mesh.position);
+                            break;
+                        case 87:
+                            console.log("naciskasz W k");
+                            camera.position.y += 2;
+                            camera.lookAt(mesh.position);
+                            break;
+                    }
+                }
+            }
+        })
+    </script>
+    <style>
+        body {
+            margin: 0;
+            overflow: hidden;
+        }
+
+        #main {
+            width: 100vh;
+            height: 100vh;
+        }
+
+        #menu {
+            background-color: rgb(50, 50, 50);
+            width: 10%;
+            margin-left: 90%;
+            color: white;
+            font-family: Tahoma;
+            position: absolute;
+            height: 100%;
+            top: 0;
+            padding: 5px;
+        }
+
+        .changecolor {
+            width: 80%;
+            height: 10%;
+            margin-left: 10%;
+            margin-top: 10%;
+        }
+
+        #white {
+            background-color: white;
+        }
+
+        #black {
+            background-color: black;
+        }
+    </style>
+</head>
+<body>
+    <div id="main"></div>
+    <div id="menu">
+        <div class="changecolor" id="white"></div>
+        <div class="changecolor" id="black"></div>
+    </div>
+</body>
+</html>
