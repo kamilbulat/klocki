@@ -64,6 +64,7 @@
             camera.position.y = 80;
             camera.position.z = 142;
 
+
             camera.lookAt(mesh.position);
 
             var axis = new THREE.AxisHelper(1000);
@@ -138,6 +139,12 @@
                         case 87:
                             console.log("naciskasz W p");
                             klik.position.x -= 20;
+                            break;
+                        case 90:
+                            klik.position.y += 20;
+                            break;
+                        case 88:
+                            klik.position.y -= 20;
                             break;
                     }
                 } else {
