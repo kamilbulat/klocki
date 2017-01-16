@@ -28,23 +28,23 @@
             materials.push(new THREE.MeshBasicMaterial({ side: THREE.DoubleSide, map: THREE.ImageUtils.loadTexture('mats/B.jpg') }));
 
 
-            console.log(materials)
+            //console.log(materials)
             var faceMaterial = new THREE.MeshFaceMaterial(materials);
 
 
             var klocki = [
-                          { x: 10, y: 10, z: 30 },
-                          { x: 10, y: 10, z: 50 },
-                          { x: 30, y: 10, z: 10 },
-                          { x: 50, y: 10, z: 10 },
-                          { x: 50, y: 10, z: 30 },
-                          { x: 50, y: 10, z: 50 },
-                          { x: 30, y: 10, z: 50 },
-                          { x: 10, y: 30, z: 10 },
-                          { x: 30, y: 30, z: 10 },
-                          { x: 10, y: 30, z: 30 },
-                          { x: 10, y: 50, z: 10 },
-                          { x: 10, y: 10, z: 10 }
+                          { x: -20, y: 10, z: 0 },
+                          { x: -20, y: 10, z: 20 },
+                          { x: 0, y: 10, z: -20 },
+                          { x: 20, y: 10, z: -20 },
+                          { x: 20, y: 10, z: 0 },
+                          { x: 20, y: 10, z: 20 },
+                          { x: 0, y: 10, z: 20 },
+                          { x: -20, y: 30, z: -20 },
+                          { x: 0, y: 30, z: -20 },
+                          { x: -20, y: 30, z: 0 },
+                          { x: -20, y: 50, z: -20 },
+                          { x: -20, y: 10, z: -20 }
             ];
 
             var material = new THREE.MeshBasicMaterial({
@@ -65,7 +65,7 @@
             camera.position.z = 142;
 
 
-            camera.lookAt(mesh.position);
+            camera.lookAt(scene.position);
 
             var axis = new THREE.AxisHelper(1000);
             scene.add(axis);
@@ -81,25 +81,52 @@
                 renderer.setClearColor(0xffffff);
             }
 
+            Math.radians = function (degrees) {
+                return degrees * Math.PI / 180;
+            };
+
             function animateScene() {
                 requestAnimationFrame(animateScene);
                 renderer.render(scene, camera);
+
+                if (kieruneka == true) {
+                    angle += 2;
+                    camera.position.x = 200 * Math.cos(Math.radians(angle));
+                    camera.position.z = 200 * Math.sin(Math.radians(angle));  
+                }
+
+                if(kierunekd == true){
+                    angle -= 2;
+                    camera.position.x = 200 * Math.cos(Math.radians(angle));
+                    camera.position.z = 200 * Math.sin(Math.radians(angle));
+                }
+                
+                if (kieruneks == true) {
+                    camera.position.y -= 4;
+                }
+
+                if (kierunekw == true) {
+                    camera.position.y += 4;
+                }
+                camera.lookAt(scene.position);
             }
             animateScene();
 
             document.addEventListener("keydown", onKeyDown, false); // naciśnięcie dowolnego klawisza
-            //document.addEventListener("keyup", onKeyUp, false); //zwolnienie dowolnego klawisza
+            document.addEventListener("keyup", onKeyUp, false); //zwolnienie dowolnego klawisza
             var x;
             var angle = 45;
-            Math.radians = function (degrees) {
-                return degrees * Math.PI / 180;
-            };
+            
 
             document.addEventListener("mousedown", onMouseDown, false);
             var raycaster = new THREE.Raycaster(); // obiekt symulujący "rzucanie" promieni
             var mouseVector = new THREE.Vector2() // wektor (x,y) wykorzystany będzie do określenie pozycji myszy na ekranie
             var isclick = false;
             var klik;
+            var kieruneka = false;
+            var kierunekw = false;
+            var kieruneks = false;
+            var kierunekd = false;
 
             function onMouseDown(event) {
                 mouseVector.x = (event.clientX / window.innerWidth) * 2 - 1;
@@ -108,36 +135,56 @@
                 var intersects = raycaster.intersectObjects(scene.children);
                 isclick = false;
 
-                console.log(intersects.length)
+                //console.log(intersects.length)
                 if (intersects.length > 0) {
                     isclick = !isclick;
-                    console.log(intersects[0].object);
+                    //console.log(intersects[0].object);
                     klik = intersects[0].object;
-                    console.log(klik);
+                    //console.log(klik);
                 }
 
-                console.log(isclick)
+                //console.log(isclick)
             }
+
+            function onKeyUp(event) {
+                var keyCode = event.which;
+                //console.log(keyCode);
+                switch (keyCode) {
+                    case 65:
+                        kieruneka = false;
+                        break;
+                    case 68:
+                        kierunekd = false;
+                        break;
+                    case 83:
+                        kieruneks = false;
+                        break;
+                    case 87:
+                        kierunekw = false;
+                        break;
+                }
+            }
+
             function onKeyDown(event) {
                 var keyCode = event.which;
-                console.log(keyCode); // wyloguj kod klawisza
+                //console.log(keyCode); // wyloguj kod klawisza
 
                 if (isclick == true) {
                     switch (keyCode) {
                         case 65:
-                            console.log("naciskasz A p");
+                            //console.log("naciskasz A p");
                             klik.position.z += 20;
                             break;
                         case 68:
-                            console.log("naciskasz D p");
+                            //console.log("naciskasz D p");
                             klik.position.z -= 20;
                             break;
                         case 83:
-                            console.log("naciskasz S p");
+                            //console.log("naciskasz S p");
                             klik.position.x += 20;
                             break;
                         case 87:
-                            console.log("naciskasz W p");
+                            //console.log("naciskasz W p");
                             klik.position.x -= 20;
                             break;
                         case 90:
@@ -151,28 +198,20 @@
                     // w tym miejscu poruszam kamerą hajto
                     switch (keyCode) {
                         case 65:
-                            console.log("naciskasz A k");
-                            angle += 2;
-                            camera.position.x = 200 * Math.cos(Math.radians(angle));
-                            camera.position.z = 200 * Math.sin(Math.radians(angle));
-                            camera.lookAt(mesh.position);
+                            //console.log("naciskasz A k");
+                            kieruneka = true;
                             break;
                         case 68:
-                            console.log("naciskasz D k");
-                            angle -= 2;
-                            camera.position.x = 200 * Math.cos(Math.radians(angle));
-                            camera.position.z = 200 * Math.sin(Math.radians(angle));
-                            camera.lookAt(mesh.position);
+                            //console.log("naciskasz D k");
+                            kierunekd = true;
                             break;
                         case 83:
-                            console.log("naciskasz S k");
-                            camera.position.y -= 4;
-                            camera.lookAt(mesh.position);
+                            //console.log("naciskasz S k");
+                            kieruneks = true;
                             break;
                         case 87:
-                            console.log("naciskasz W k");
-                            camera.position.y += 4;
-                            camera.lookAt(mesh.position);
+                            //console.log("naciskasz W k");
+                            kierunekw = true;
                             break;
                     }
                 }
